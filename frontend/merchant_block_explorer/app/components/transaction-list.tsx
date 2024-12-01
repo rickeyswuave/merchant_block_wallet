@@ -18,20 +18,17 @@ type Transaction = {
 
 // This function will be replaced with an actual API call
 async function fetchTransactions(): Promise<Transaction[]> {
-  // Simulating API call with a delay
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  
-  // This is where you'd make your actual API call
-  // return await fetch('/api/transactions').then(res => res.json())
-  
-  // For now, we'll return mock data
-  return [
-    { id: '1', sender: '0x1234...5678', amount: 0.5, status: 'completed', timestamp: '2023-05-15T10:30:00Z' },
-    { id: '2', sender: '0x8765...4321', amount: 1.2, status: 'pending', timestamp: '2023-05-15T11:45:00Z' },
-    { id: '3', sender: '0x2468...1357', amount: 0.8, status: 'completed', timestamp: '2023-05-15T09:15:00Z' },
-    { id: '4', sender: '0x9876...5432', amount: 2.0, status: 'refunded', timestamp: '2023-05-14T16:20:00Z' },
-    { id: '5', sender: '0x3456...7890', amount: 1.5, status: 'pending', timestamp: '2023-05-14T14:55:00Z' },
-  ]
+  const response = await fetch('http://localhost:3000/api/transactions/GA26NywR5aAvs6HswujnfQusBDUSmW6U7rGdrD9GEEM');
+  const transactions = await response.json();
+
+  // Transform the transactions to match the Transaction type
+  return transactions.map((tx: any) => ({
+    id: tx.transaction.signatures[0],
+    sender: tx.transaction.message.accountKeys[0].toBase58(),
+    amount: (tx.meta.postBalances[0] - tx.meta.preBalances[0]) / 1e9, // Convert lamports to SOL
+    status: 'completed', // You can add logic to determine the status
+    timestamp: new Date(tx.blockTime * 1000).toISOString(),
+  }));
 }
 
 export default function TransactionList() {
@@ -43,8 +40,10 @@ export default function TransactionList() {
 
   const loadTransactions = async () => {
     setIsLoading(true)
+    console.log('Loading transactions...')
     try {
       const data = await fetchTransactions()
+      console.log('Transactions loaded:', data)
       setTransactions(data)
     } catch (error) {
       console.error('Failed to fetch transactions:', error)
@@ -115,4 +114,3 @@ export default function TransactionList() {
     </>
   )
 }
-
