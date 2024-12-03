@@ -9,7 +9,7 @@ type RefundModalProps = {
   isOpen: boolean
   onClose: () => void
   onConfirm: (passGasFees: boolean) => void
-  transaction: { id: string; amount: number; timestamp: string } | null
+  transaction: { id: string; amount: number; amountUSD: number; timestamp: string } | null
 }
 
 export default function RefundModal({ isOpen, onClose, onConfirm, transaction }: RefundModalProps) {
@@ -45,6 +45,7 @@ export default function RefundModal({ isOpen, onClose, onConfirm, transaction }:
               <div className="mt-2">
                 <p>Transaction ID: {transaction.id}</p>
                 <p>Amount: {transaction.amount} ETH</p>
+                <p>AmountUSD: {transaction.amountUSD} ETH</p>
                 <p>Date: {formatDate(transaction.timestamp)}</p>
               </div>
             )}

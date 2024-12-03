@@ -9,7 +9,8 @@ type Transaction = {
   id: string
   sender: string
   amount: number
-  status: 'pending' | 'completed' | 'refunded'
+  amountUSD: number
+  status: 'pending' | 'completed' | 'refunded' | 'failed'
   timestamp: string
 }
 
@@ -81,6 +82,29 @@ export const columns = (
     },
   },
   {
+    accessorKey: "amountUSD",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Amount (USD)
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+    cell: ({ row }) => {
+      const amountUSD = parseFloat(row.getValue("amountUSD"))
+      const formatted = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(amountUSD)
+
+      return <div className="font-medium">{formatted}</div>
+    },
+  },
+  {
     accessorKey: "status",
     header: ({ column }) => {
       return (
@@ -98,7 +122,8 @@ export const columns = (
       return (
         <Badge variant={
           status === 'completed' ? 'default' :
-          status === 'pending' ? 'secondary' : 'destructive'
+          status === 'pending' ? 'secondary' : 
+          status === 'refunded' ? 'outline' : 'destructive'
         }>
           {status}
         </Badge>
