@@ -45,21 +45,23 @@ function downloadCSV(transactions: Transaction[]) {
 
 // This function will be replaced with an actual API call
 async function fetchTransactions(): Promise<Transaction[]> {
-  const response = await fetch('http://localhost:3000/api/transactions/28gKfgTw6xkZiYcJ7vA5KBqKzew3kscYW7UwM5vgRNLb');
-  const transactions = await response.json();
-
-  // Transform the transactions to match the Transaction type
-  return transactions.map((tx: any) => {
-    const amount = Math.abs((tx.meta.postBalances[0] - tx.meta.preBalances[0]) / 1e9); // Convert lamports to SOL and ensure positive
-    return {
-      id: tx.transaction.signatures[0],
-      sender: tx.transaction.message.accountKeys[0].pubkey,
-      amount,
-      status: 'completed', // You can add logic to determine the status
-      timestamp: new Date(tx.blockTime * 1000).toISOString(),
-    };
-  });
-}
+    const response = await fetch('http://localhost:3000/api/transactions/28gKfgTw6xkZiYcJ7vA5KBqKzew3kscYW7UwM5vgRNLb');
+    const transactions = await response.json();
+  
+    // Transform the transactions to match the Transaction type
+    return transactions.map((tx: any) => {
+      const amount = Math.abs((tx.meta.postBalances[0] - tx.meta.preBalances[0]) / 1e9); // Convert lamports to SOL and ensure positive
+      const amountUSD = amount * 236; // Calculate USD value based on SOL value
+      return {
+        id: tx.transaction.signatures[0],
+        sender: tx.transaction.message.accountKeys[0].pubkey,
+        amount,
+        amountUSD,
+        status: 'completed', // You can add logic to determine the status
+        timestamp: new Date(tx.blockTime * 1000).toISOString(),
+      };
+    });
+  }
 
 export default function TransactionList() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
