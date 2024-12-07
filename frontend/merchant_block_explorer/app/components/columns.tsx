@@ -65,7 +65,7 @@ export const columns = (
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Amount (ETH)
+          Amount (Sol)
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
@@ -74,7 +74,7 @@ export const columns = (
       const amount = parseFloat(row.getValue("amount"))
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: "ETH",
+        currency: "Sol",
       }).format(amount)
  
       return <div className="font-medium">{formatted}</div>

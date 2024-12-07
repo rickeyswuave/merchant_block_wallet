@@ -6,6 +6,7 @@ const app = express();
 const port = 3000;
 
 app.use(cors());
+app.use(express.json());
 
 // Create a connection to the Solana devnet cluster using Ankr RPC endpoint
 const connection = new Connection('https://rpc.ankr.com/solana_devnet');
@@ -44,6 +45,7 @@ async function fetchAllSignatures(publicKey, before = null, limit = 1000) {
 app.get('/api/transactions/:address', async (req, res) => {
   try {
     const { address } = req.params;
+    console.log(`Fetching transactions for address: ${address}`);
     const publicKey = new PublicKey(address);
 
     // Fetch all signatures for the address with pagination
@@ -53,13 +55,14 @@ app.get('/api/transactions/:address', async (req, res) => {
     const transactions = await Promise.all(
       signatures.map(async (signatureInfo) => {
         const transaction = await fetchTransactionWithRetry(signatureInfo.signature);
+        console.log(`Fetched transaction: ${transaction.transaction.signature}`);
         return transaction;
       })
     );
 
     res.json(transactions);
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching transactions:', error);
     res.status(500).json({ error: 'Failed to fetch transaction history' });
   }
 });
